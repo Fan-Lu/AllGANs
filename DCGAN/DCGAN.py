@@ -138,6 +138,6 @@ if __name__ == '__main__':
         plt.savefig(save_fn)
 
         if not os.path.exists(args.model_save):
-            os.mkdir(args.save_dir)
+            os.mkdir(args.model_save)
         torch.save(D.state_dict(), '%s/D_epoch_%d.pth' % (args.model_save, epoch))
         torch.save(G.state_dict(), '%s/G_epoch_%d.pth' % (args.model_save, epoch))
