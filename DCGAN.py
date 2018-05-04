@@ -125,8 +125,8 @@ if __name__ == '__main__':
 
             if (index % 100 == 0):
                 print('Iter: {}, D: {:.4}, G:{:.4}'.format(index, total_error.data[0], g_fake_loss.data[0]))
-                imgs_numpy = fake_image.data[0].cpu().numpy()
-                plt.imshow((imgs_numpy/2 + 0.5).reshape(64, 64))
-                plt.show()
+                # imgs_numpy = fake_image.data[0].cpu().numpy()
+                # plt.imshow((imgs_numpy/2 + 0.5).reshape(64, 64))
+                # plt.show()
 
 
