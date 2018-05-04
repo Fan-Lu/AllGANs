@@ -16,7 +16,8 @@ parser.add_argument('--image_size', default=64, type=int, help='size of image')
 parser.add_argument('--batch_size', default=128, type=int, help='batch size')
 parser.add_argument('--num_epoch', default=20, type=int, help='batch size')
 parser.add_argument('--use_cuda', default=True, type=int, help='batch size')
-parser.add_argument('--save_dir', metavar='DIR', help='path to store results', default='model_saved/')
+parser.add_argument('--model_save', metavar='DIR', help='path to store results', default='model_saved/')
+parser.add_argument('--result_save', metavar='DIR', help='path to store results', default='result_saved/')
 
 args = parser.parse_args()
 
@@ -125,12 +126,18 @@ if __name__ == '__main__':
             G_Optimizer.step()
 
             if (index % 100 == 0):
-                print('Iter: {}, D: {:.4}, G:{:.4}'.format(index, total_error.data[0], g_fake_loss.data[0]))
-                # imgs_numpy = fake_image.data[0].cpu().numpy()
-                # plt.imshow((imgs_numpy/2 + 0.5).reshape(64, 64))
-                # plt.show()
+                print('Epoch: {}, Iter: {}, D: {:.4}, G:{:.4}'.format(epoch, index, total_error.data[0], g_fake_loss.data[0]))
+        print('Saving results ============>')
+        fake_input = Variable(torch.randn(2, 96)).cuda()
+        fake_image = G(fake_input)
+        imgs_numpy = fake_image.data[0].cpu().numpy()
+        plt.imshow((imgs_numpy / 2 + 0.5).reshape(64, 64), cmap='gray', aspect='equal')
+        if not os.path.exists(args.result_save):
+            os.mkdir(args.result_save)
+        save_fn = args.result_save + 'MNIST_DCGAN_G_epoch_{:d}'.format(epoch) + '.png'
+        plt.savefig(save_fn)
 
-        if not os.path.exists(args.save_dir):
+        if not os.path.exists(args.model_save):
             os.mkdir(args.save_dir)
-        torch.save(D.state_dict(), '%s/D_epoch_%d.pth' % (args.save_dir, epoch))
-        torch.save(G.state_dict(), '%s/G_epoch_%d.pth' % (args.save_dir, epoch))
+        torch.save(D.state_dict(), '%s/D_epoch_%d.pth' % (args.model_save, epoch))
+        torch.save(G.state_dict(), '%s/G_epoch_%d.pth' % (args.model_save, epoch))
