@@ -6,7 +6,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 from torch.autograd import Variable
 
-import argparse
+import argparse, os
 import matplotlib.pyplot as plt
 
 
@@ -14,8 +14,9 @@ parser = argparse.ArgumentParser(description='DCGAN')
 parser.add_argument('--data_dir', metavar='DIR', help='path to data', default='../Data/MNIST_data/')
 parser.add_argument('--image_size', default=64, type=int, help='size of image')
 parser.add_argument('--batch_size', default=128, type=int, help='batch size')
-parser.add_argument('--num_epoch', default=10, type=int, help='batch size')
+parser.add_argument('--num_epoch', default=20, type=int, help='batch size')
 parser.add_argument('--use_cuda', default=True, type=int, help='batch size')
+parser.add_argument('--save_dir', metavar='DIR', help='path to store results', default='model_saved/')
 
 args = parser.parse_args()
 
@@ -128,3 +129,8 @@ if __name__ == '__main__':
                 # imgs_numpy = fake_image.data[0].cpu().numpy()
                 # plt.imshow((imgs_numpy/2 + 0.5).reshape(64, 64))
                 # plt.show()
+
+        if not os.path.exists(args.save_dir):
+            os.mkdir(args.save_dir)
+        torch.save(D.state_dict(), '%s/D_epoch_%d.pth' % (args.save_dir, epoch))
+        torch.save(G.state_dict(), '%s/G_epoch_%d.pth' % (args.save_dir, epoch))
