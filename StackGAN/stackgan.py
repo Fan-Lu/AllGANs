@@ -131,6 +131,7 @@ optimizer_D = optim.Adam(D.parameters(), lr=1e-3, betas=(0.9, 0.999), eps=1e-8, 
 optimizer_info = torch.optim.Adam(itertools.chain(G.parameters(), D.parameters()), lr=1e-3, betas=(0.9, 0.999))
 criterion_info = nn.CrossEntropyLoss()
 
+noise = torch.FloatTensor(args.batch_size, 100)
 fixed_noise = Variable(torch.FloatTensor(2, 100).normal_(0, 1))
 fixed_digits = torch.zeros(2, 10)
 
@@ -142,7 +143,8 @@ if __name__ == '__main__':
     for epoch in range(20):
         for index, data in enumerate(trainloader):
             real_img, real_labels = data
-            noise = torch.FloatTensor(real_labels.size(0), 100)
+            if real_img.size(0) != args.batch_size:
+                continue
             real_img = Variable(real_img).cuda()
             #   1. Update Discriminator
             #   1A. Train D with real image
