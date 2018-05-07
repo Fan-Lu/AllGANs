@@ -12,7 +12,8 @@ parase = argparse.ArgumentParser(description='StackGAN')
 parase.add_argument('--batch_size', default=128, type=int, help='batchsize')
 parase.add_argument('--data_dir', default='../Data/MNIST_data/', help='path to data')
 parase.add_argument('--image_size', default=64, help='image size')
-
+parase.add_argument('--result_save', default='result_saved/', help='path to data')
+parase.add_argument('--model_save', default='model_saved/', help='path to data')
 
 args = parase.parse_args()
 
@@ -38,8 +39,10 @@ def normal_init(m, mean, std):
 
 
 def get_digits(digits, labels):
-    for i in range(args.batch_size):
-        digits[i][labels[i]] = 1
+    # print(labels.size(0))
+    index = int(labels.size(0))
+    for i in range(index):
+        digits[i][int(labels[i])] = 1
 
     return digits
 
@@ -130,6 +133,7 @@ criterion_info = nn.CrossEntropyLoss()
 
 noise = torch.FloatTensor(args.batch_size, 100)
 fixed_noise = Variable(torch.FloatTensor(2, 100).normal_(0, 1))
+fixed_digits = torch.zeros(2, 10)
 
 true_label = Variable(torch.ones(args.batch_size)).cuda()
 false_label = Variable(torch.zeros(args.batch_size)).cuda()
@@ -176,8 +180,8 @@ if __name__ == '__main__':
                 print('Epoch: {}, Iter: {}, D: {:.4}, G:{:.4}, Info: {:.4}'.format(epoch, index, total_error.data[0], fake_loss_G.data[0], info_loss.data[0]))
         print('Saving results ============>')
         real = torch.FloatTensor(torch.zeros(2))
-        x_digits_D = Variable(get_digits(x_digits, real)).cuda()
-        fake_image = G(fixed_noise, x_digits_D)
+        x_digits_D = Variable(get_digits(fixed_digits, real)).cuda()
+        fake_image = G(fixed_noise.cuda(), x_digits_D)
         imgs_numpy = fake_image.data[0].cpu().numpy()
         plt.imshow((imgs_numpy / 2 + 0.5).reshape(64, 64), cmap='gray', aspect='equal')
         if not os.path.exists(args.result_save):
