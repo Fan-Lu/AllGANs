@@ -14,7 +14,7 @@ parser = argparse.ArgumentParser(description='DCGAN')
 parser.add_argument('--data_dir', metavar='DIR', help='path to data', default='../Data/MNIST_data/')
 parser.add_argument('--image_size', default=64, type=int, help='size of image')
 parser.add_argument('--batch_size', default=128, type=int, help='batch size')
-parser.add_argument('--num_epoch', default=20, type=int, help='batch size')
+parser.add_argument('--num_epoch', default=200, type=int, help='batch size')
 parser.add_argument('--use_cuda', default=True, type=int, help='batch size')
 parser.add_argument('--model_save', metavar='DIR', help='path to store results', default='model_saved/')
 parser.add_argument('--result_save', metavar='DIR', help='path to store results', default='result_saved/')
@@ -94,6 +94,8 @@ G = Generator().cuda()
 G_Optimizer = torch.optim.Adam(G.parameters(),lr=1e-3, betas=(0.9, 0.999), eps=1e-8, weight_decay=0)
 BCE = nn.BCEWithLogitsLoss()
 
+fix_noise = Variable(torch.FloatTensor(2, 96).normal_(0, 1), volatile=True).cuda()
+
 if __name__ == '__main__':
 
     for epoch in range(args.num_epoch):
@@ -125,11 +127,10 @@ if __name__ == '__main__':
             g_fake_loss.backward()
             G_Optimizer.step()
 
-            if (index % 100 == 0):
+            if (index % 10 == 0):
                 print('Epoch: {}, Iter: {}, D: {:.4}, G:{:.4}'.format(epoch, index, total_error.data[0], g_fake_loss.data[0]))
         print('Saving results ============>')
-        fake_input = Variable(torch.randn(2, 96)).cuda()
-        fake_image = G(fake_input)
+        fake_image = G(fix_noise)
         imgs_numpy = fake_image.data[0].cpu().numpy()
         plt.imshow((imgs_numpy / 2 + 0.5).reshape(64, 64), cmap='gray', aspect='equal')
         if not os.path.exists(args.result_save):
